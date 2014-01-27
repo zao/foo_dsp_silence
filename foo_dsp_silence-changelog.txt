@@ -1,0 +1,15 @@
+0.0.4
+-------
+* Add the ability to affix silence before the track as well.
+
+0.0.3
+-------
+* Stuff.
+
+0.0.2
+-------
+* Prevented values outside the allowed range crashing the config dialog.
+
+0.0.1
+-------
+* Initial release.
