@@ -244,6 +244,6 @@ private:
 	}
 };
 
-DECLARE_COMPONENT_VERSION("Post-track silence", "0.0.4", "A DSP for inserting a configurable amount of silence before/after each track.\n" "Zao")
+DECLARE_COMPONENT_VERSION("Post-track silence", "0.0.5", "A DSP for inserting a configurable amount of silence before/after each track.\n" "Zao")
 VALIDATE_COMPONENT_FILENAME("foo_dsp_silence.dll")
 static dsp_factory_t<dsp_silence> foo_dsp_silence;
