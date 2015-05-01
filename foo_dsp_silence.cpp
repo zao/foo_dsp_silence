@@ -77,12 +77,12 @@ public:
 		case WM_COMMAND:
 			switch(wp) {
 			case IDOK: {
-					auto get_text_value = [&](int id, t_int32 default) {
+					auto get_text_value = [&](int id, t_int32 def) -> t_int32 {
 						BOOL translated = FALSE;
 						t_int32 ret = uGetDlgItemInt(get_wnd(), id, &translated, FALSE);
 						if (translated)
 							return ret;
-						return default;
+						return def;
 					};
 					auto restore_if_negative = [&](t_int32 amount, int id, t_int32 old_value) -> t_int32 {
 						if (amount < 0) {
@@ -121,6 +121,7 @@ class dsp_silence :
 	t_uint32 m_ms_pre;
 	t_uint32 m_ms_post;
 	t_uint32 m_nch;
+	t_uint32 m_chmask;
 	t_uint32 m_srate;
 
 	bool m_first_chunk;
@@ -133,6 +134,7 @@ public:
 		m_ms_pre  = params.m_ms_pre;
 		m_ms_post = params.m_ms_post;
 		m_nch = 0;
+		m_chmask = 0;
 		m_srate = 0;
 	}
 
@@ -194,13 +196,14 @@ public:
 			pfc::array_t<audio_sample> silence;
 			silence.set_size(amount);
 			silence.fill(0.0f);
-			ac->set_data(silence.get_ptr(), amount/m_nch, m_nch, m_srate);
+			ac->set_data(silence.get_ptr(), amount/m_nch, m_nch, m_srate, m_chmask);
 		}
 	}
 
 	virtual bool on_chunk(audio_chunk * chunk, abort_callback&) {
 		if (m_first_chunk) {
 			m_nch = chunk->get_channels();
+			m_chmask = chunk->get_channel_config();
 			m_srate = chunk->get_srate();
 			insert_silence_chunk(m_ms_pre/1000.0f);
 			m_first_chunk = false;
