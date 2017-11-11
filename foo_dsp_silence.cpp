@@ -347,7 +347,7 @@ public:
 };
 
 DECLARE_COMPONENT_VERSION("Post-track silence",
-                          "0.0.5",
+                          "0.0.6",
                           "A DSP for inserting a configurable amount of "
                           "silence before/after each track.\n"
                           "Zao")
