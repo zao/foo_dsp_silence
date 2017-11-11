@@ -1,7 +1,4 @@
 include_directories(${WTL_INCLUDE_DIRS})
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories("${ASIO_ROOT}/include")
-link_directories(${Boost_LIBRARY_DIRS})
 
 set(DSP_SOURCES
 "foo_dsp_silence.cpp"
@@ -10,7 +7,7 @@ set(DSP_SOURCES
 )
 
 include_directories(.)
-add_definitions(-Zm300)
+add_definitions(-Zm300 -DNOMINMAX)
 add_library(foo_dsp_silence SHARED
 	${DSP_SOURCES}
 )
