@@ -41,8 +41,9 @@ struct t_dsp_silence_params
   {
     auto cb = p_data.get_data_size();
     // invalid data
-    if (cb == 0)
+    if (cb == 0) {
       return false;
+    }
     auto* p = (char const*)p_data.get_data();
 
     // <= 0.0.3 data format, just post-track silence
@@ -50,6 +51,7 @@ struct t_dsp_silence_params
       std::memcpy(&m_ms_post, p, sizeof(t_uint32));
 
       m_ms_pre = 0;
+      m_skip_subpaths.reset();
 
       return true;
     }
@@ -61,17 +63,19 @@ struct t_dsp_silence_params
 
       std::memcpy(&m_ms_pre, p, sizeof(t_uint32));
 
+      m_skip_subpaths.reset();
+
       return true;
     }
 
     // 0.0.6+ data format has version prefix
     t_uint32 version{};
-    if (cb > 2 * sizeof(t_uint32)) {
+    if (cb >= 1 * sizeof(t_uint32)) {
       std::memcpy(&version, p, sizeof(version));
       p += sizeof(version);
 
       // 0.0.6 data format, post/pre and subpaths
-      if (version == 0x6) {
+      if (version == 0x6 && cb > 3 * sizeof(t_uint32)) {
         std::memcpy(&m_ms_post, p, sizeof(m_ms_post));
         p += sizeof(m_ms_post);
 
@@ -92,14 +96,14 @@ struct t_dsp_silence_params
   {
     // 0.0.6 data format, post-track, pre-track silence, subpaths
     std::vector<char> v;
-    t_uint32 version = 0x5;
+    t_uint32 version = 0x6;
     v.insert(v.end(), (char const*)&version, (char const*)(&version + 1));
 
     t_uint32 d[] = { m_ms_post, m_ms_pre };
     v.insert(v.end(), (char const*)d, (char const*)(d + 2));
 
     gsl::cstring_span<> s{ m_skip_subpaths.get_ptr(),
-                           (ptrdiff_t)m_skip_subpaths.get_length() };
+                           (ptrdiff_t)m_skip_subpaths.get_length() + 1 };
     v.insert(v.end(), s.begin(), s.end());
 
     p_data.set_data(v.data(), v.size());
@@ -269,13 +273,6 @@ public:
       m_ms_post = params.m_ms_post;
       m_ms_pre = params.m_ms_pre;
       split_string_on(m_skip_subpaths, ';', params.m_skip_subpaths);
-      {
-        std::ostringstream oss;
-        oss << "Subpath fragment set: {\n";
-        m_skip_subpaths.enumerate([&](auto&& p) { oss << " " << p << "\n"; });
-        oss << "}\n";
-        console::info(oss.str().c_str());
-      }
       return true;
     }
     return false;
