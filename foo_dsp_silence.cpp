@@ -319,7 +319,9 @@ public:
       if (get_cur_file(mh) && does_path_match_blacklist(mh->get_path())) {
         return true;
       }
-      insert_silence_chunk(m_ms_pre / 1000.0f);
+      if (m_ms_pre) {
+        chunk->insert_silence_fromstart(sample_count(m_ms_pre / 1000.0f));
+      }
     }
     return true;
   }
@@ -343,7 +345,7 @@ public:
   virtual bool need_track_change_mark() { return true; }
 };
 
-DECLARE_COMPONENT_VERSION("Post-track silence",
+DECLARE_COMPONENT_VERSION("Affix silence",
                           "0.0.7",
                           "A DSP for inserting a configurable amount of "
                           "silence before/after each track.\n"
