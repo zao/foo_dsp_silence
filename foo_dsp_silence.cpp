@@ -206,13 +206,20 @@ class dsp_silence : public dsp_impl_base
   t_uint32 m_chmask;
   t_uint32 m_srate;
 
-  bool m_first_chunk;
+  enum class playback_state
+  {
+    chunk,
+    end_of_track,
+    end_of_playback,
+  };
+
+  playback_state m_last_chunk_state;
 
 public:
   dsp_silence(dsp_preset const& p_preset)
   {
     t_dsp_silence_params params(p_preset);
-    m_first_chunk = true;
+    m_last_chunk_state = playback_state::end_of_playback;
     set_data(p_preset);
     m_nch = 0;
     m_chmask = 0;
@@ -309,8 +316,8 @@ public:
 
   virtual bool on_chunk(audio_chunk* chunk, abort_callback&)
   {
-    if (m_first_chunk) {
-      m_first_chunk = false;
+    if (m_last_chunk_state != playback_state::chunk) {
+      m_last_chunk_state = playback_state::chunk;
       m_nch = chunk->get_channels();
       m_chmask = chunk->get_channel_config();
       m_srate = chunk->get_srate();
@@ -326,17 +333,30 @@ public:
     return true;
   }
 
-  virtual void on_endoftrack(abort_callback&)
+  void post_insert_impl(playback_state caller, playback_state inhibiter)
   {
-    m_first_chunk = true;
-    metadb_handle_ptr mh;
-    if (get_cur_file(mh) && does_path_match_blacklist(mh->get_path())) {
-      return;
+    auto prev_state = m_last_chunk_state;
+    m_last_chunk_state = caller;
+    if (prev_state != inhibiter) {
+      metadb_handle_ptr mh;
+      if (get_cur_file(mh) && does_path_match_blacklist(mh->get_path())) {
+        return;
+      }
+      insert_silence_chunk(m_ms_post / 1000.0f);
     }
-    insert_silence_chunk(m_ms_post / 1000.0f);
   }
 
-  virtual void on_endofplayback(abort_callback&) {}
+  virtual void on_endoftrack(abort_callback&)
+  {
+    post_insert_impl(playback_state::end_of_track,
+                     playback_state::end_of_playback);
+  }
+
+  virtual void on_endofplayback(abort_callback&)
+  {
+    post_insert_impl(playback_state::end_of_playback,
+                     playback_state::end_of_track);
+  }
 
   virtual void flush() {}
 
