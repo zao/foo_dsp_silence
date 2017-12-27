@@ -366,7 +366,7 @@ public:
 };
 
 DECLARE_COMPONENT_VERSION("Affix silence",
-                          "0.0.8",
+                          "0.0.9",
                           "A DSP for inserting a configurable amount of "
                           "silence before/after each track.\n"
                           "Zao")
