@@ -285,6 +285,11 @@ public:
     return false;
   }
 
+  t_uint32 frame_count(float seconds)
+  {
+	  return (t_uint32)(m_srate * seconds);
+  }
+
   t_uint32 sample_count(float seconds)
   {
     return (t_uint32)(m_nch * m_srate * seconds);
@@ -327,7 +332,7 @@ public:
         return true;
       }
       if (m_ms_pre) {
-        chunk->insert_silence_fromstart(sample_count(m_ms_pre / 1000.0f));
+        chunk->insert_silence_fromstart(frame_count(m_ms_pre / 1000.0f));
       }
     }
     return true;
