@@ -347,7 +347,7 @@ class dsp_silence : public dsp_impl_base
 };
 
 DECLARE_COMPONENT_VERSION("Affix silence",
-                          "0.0.10",
+                          "0.0.11",
                           "A DSP for inserting a configurable amount of "
                           "silence before/after each track.\n"
                           "Zao")
