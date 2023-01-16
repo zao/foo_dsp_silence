@@ -1,3 +1,5 @@
-*.aps
-*.vcproj*
-*.log
+.svn/
+.vs/
+portable*/
+out/
+CMakeSettings.json

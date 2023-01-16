@@ -1,0 +1,7 @@
+{
+  "name": "foo-dsp-silence",
+  "version": "0.0.10",
+  "dependencies": [
+    "foobar2000-sdk"
+  ]
+}

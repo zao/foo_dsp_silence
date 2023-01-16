@@ -1,0 +1,6 @@
+BasedOnStyle: Mozilla
+IndentWidth: 4
+SortIncludes: false
+UseTab: Never
+UseCRLF: false
+ColumnLimit: 120
